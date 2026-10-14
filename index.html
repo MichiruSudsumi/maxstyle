@@ -84,6 +84,20 @@ h2{font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.18e
 /* masters */
 .masters{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;margin-inline:-20px;padding-inline:20px}
 .masters::-webkit-scrollbar{display:none}
+.masters{scroll-snap-type:x mandatory;scroll-padding-inline:20px;scroll-behavior:smooth;cursor:grab;padding-bottom:4px}
+.masters.drag{scroll-snap-type:none;scroll-behavior:auto;cursor:grabbing}
+.masters .m{scroll-snap-align:start;width:132px}
+.arr{display:flex;align-items:center;gap:8px}
+.arr button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:grid;place-items:center;cursor:pointer;padding:0}
+.arr button svg.i{width:18px;height:18px}
+.arr button:disabled{opacity:.3;cursor:default}
+.mdots{display:flex;justify-content:center;gap:6px}
+.mdots span{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.mdots span.on{background:var(--accent);width:18px;border-radius:3px}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:16px}
+.pager button{background:none;border:0;color:var(--fg);font:inherit;display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 0}
+.pager button:disabled{opacity:.3;cursor:default}
+.pager .flip{transform:scaleX(-1)}
 .m{flex:none;width:112px;display:flex;flex-direction:column;gap:8px;background:none;border:0;color:var(--fg);font:inherit;text-align:left;cursor:pointer;padding:0}
 .ava{width:100%;aspect-ratio:1;max-width:100%;border-radius:18px;background:var(--soft);display:grid;place-items:center;font-family:var(--display);font-size:30px;font-weight:300;color:var(--fg);border:1px solid var(--line)}
 .m .n{font-weight:500;font-size:14px;line-height:1.3}
@@ -269,6 +283,7 @@ const upcoming = () => S.bookings.filter(b=>!b.cancelled && !isPast(b)).sort((a,
 /* ---------- render ---------- */
 const $ = id => document.getElementById(id);
 function render(){
+  $('main').ontouchstart=$('main').ontouchend=null;
   renderTabs();
   if(S.flow) return renderFlow();
   if(S.view?.type==='master') return renderMaster(S.view.id);
@@ -325,11 +340,12 @@ function renderHome(){
     <section class="sec"><div class="row"><h2>Ближайшая запись</h2>${upcoming().length?'<button class="link" data-goto="bookings">Все</button>':''}</div>${nextCard()}</section>
     <section class="sec"><h2>Направления</h2>${catGrid()}</section>
     <section class="sec"><h2>Популярное</h2>${serviceList(popular)}</section>
-    <section class="sec"><div class="row"><h2>Мастера</h2><button class="link" data-goto="masters">Все</button></div>${masterCards(MASTERS)}</section>
+    <section class="sec"><div class="row"><h2>Мастера</h2><div class="arr"><button class="link" data-goto="masters" style="width:auto;border:0;background:none;padding:0 6px">Все</button><button id="mprev" aria-label="Предыдущий мастер">${ic('back')}</button><button id="mnext" aria-label="Следующий мастер">${ic('back','style="transform:scaleX(-1)"')}</button></div></div>${masterCards(MASTERS)}<div class="mdots" id="mdots">${MASTERS.map((_,i)=>`<span class="${i?'':'on'}"></span>`).join('')}</div></section>
     <section class="sec"><div class="list">
       <div class="info">${ic('pin')}<div class="t">${SALON.address}<div class="s">${SALON.hours}</div></div></div>
     </div></section>`;
   wire(); $('top').querySelector('[data-book]').onclick=()=>startFlow({});
+  carousel($('main').querySelector('.masters'));
   $('main').querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{
     if(b.dataset.goto==='bookings'){S.tab='bookings'} else {S.tab='services';S.filter='masters'} render(); });
 }
@@ -349,8 +365,33 @@ function renderServices(){
   wire();
 }
 
+/* swipeable masters row: touch scroll + snap, mouse drag, arrows, dots */
+function carousel(el){
+  if(!el) return;
+  const step=()=>{const c=el.querySelector('.m');return c?c.offsetWidth+12:140};
+  const idx=()=>Math.round(el.scrollLeft/step());
+  const sync=()=>{const max=el.scrollWidth-el.clientWidth-2;
+    const i = el.scrollLeft>=max ? MASTERS.length-1 : Math.min(idx(), MASTERS.length-1);
+    $('mprev').disabled=el.scrollLeft<=2; $('mnext').disabled=el.scrollLeft>=max;
+    $('mdots').querySelectorAll('span').forEach((s,k)=>s.classList.toggle('on', k===i)); };
+  $('mprev').onclick=()=>el.scrollBy({left:-step()});
+  $('mnext').onclick=()=>el.scrollBy({left:step()});
+  el.addEventListener('scroll',sync,{passive:true}); sync();
+  let down=null, moved=false;
+  el.addEventListener('pointerdown',e=>{ if(e.pointerType!=='mouse')return; down={x:e.clientX,s:el.scrollLeft,id:e.pointerId}; moved=false; });
+  el.addEventListener('pointermove',e=>{ if(!down)return; const dx=e.clientX-down.x;
+    if(!moved && Math.abs(dx)>4){moved=true;el.classList.add('drag');try{el.setPointerCapture(down.id)}catch(_){}}
+    if(moved) el.scrollLeft=down.s-dx; });
+  const up=()=>{ if(!down)return; down=null; if(moved){el.classList.remove('drag'); el.scrollTo({left:Math.round(el.scrollLeft/step())*step()});} };
+  el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
+  el.addEventListener('click',e=>{ if(moved){e.stopPropagation();e.preventDefault();moved=false} },true);
+  el.addEventListener('dragstart',e=>e.preventDefault());
+}
+
 function renderMaster(id){
   const m=mst(id);
+  const i=MASTERS.indexOf(m), prev=MASTERS[i-1], next=MASTERS[i+1];
+  const go=n=>{ if(!n)return; S.view={type:'master',id:n.id}; render(); $('main').scrollTop=0; };
   topBack('Мастер',()=>{S.view=null;render()});
   $('main').innerHTML = `
     <section class="prof"><span class="ava" style="width:88px;font-size:34px">${m.name[0]}</span>
@@ -363,8 +404,18 @@ function renderMaster(id){
     <section class="sec"><h2>Услуги мастера</h2>
       <div class="list">${SERVICES.filter(s=>m.cats.includes(s.cat)).map(s=>`<button class="item" data-svcm="${s.id}">
       <span class="t"><span class="n">${s.name}</span><span class="s">${durTxt(s.dur)}</span></span><span class="p">${rub(s.price)}</span></button>`).join('')}</div>
-    </section>`;
+    </section>
+    <nav class="pager" aria-label="Другие мастера">
+      <button id="pprev" ${prev?'':'disabled'}>${ic('back')}${prev?prev.name:''}</button>
+      <span class="hint num">${i+1} из ${MASTERS.length}</span>
+      <button id="pnext" ${next?'':'disabled'}>${next?next.name:''}${ic('back','style="transform:scaleX(-1)"')}</button>
+    </nav>`;
   $('main').querySelectorAll('[data-svcm]').forEach(b=>b.onclick=()=>startFlow({service:b.dataset.svcm, master:id}));
+  $('pprev').onclick=()=>go(prev); $('pnext').onclick=()=>go(next);
+  const M=$('main'); let sx=null, sy=0;
+  M.ontouchstart=e=>{sx=e.touches[0].clientX; sy=e.touches[0].clientY};
+  M.ontouchend=e=>{ if(sx===null)return; const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy; sx=null;
+    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5) go(dx<0?next:prev); };
 }
 
 /* ---------- booking flow ---------- */
