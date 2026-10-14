@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#C8102E">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}body{margin:0}[hidden]{display:none!important}</style>
+<title>MaxStyle</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Manrope:wght@400;500;600&display=swap">
+<style>
+/* Layout: one phone-width column, scrolling content between a quiet header and a 4-icon tab bar */
+:root{
+  --bg:#F6F6F7; --surface:#FFFFFF; --fg:#18171B; --muted:#77737C; --line:#E4E2E7;
+  --accent:#C8102E; --accent-fg:#FFFFFF; --soft:#EEEBF0; --ok:#3F7D5C; --warn:#C8102E;
+  --display:"Jost","Futura","Century Gothic",system-ui,sans-serif;
+  --body:"Manrope","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#131215; --surface:#1C1B1F; --fg:#F1EFF3; --muted:#9A96A0; --line:#2C2A30;
+  --accent:#E0303F; --accent-fg:#FFFFFF; --soft:#26242A; --ok:#7CC19B; --warn:#F0606B; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131215; --surface:#1C1B1F; --fg:#F1EFF3; --muted:#9A96A0; --line:#2C2A30;
+  --accent:#E0303F; --accent-fg:#FFFFFF; --soft:#26242A; --ok:#7CC19B; --warn:#F0606B; color-scheme:dark}
+.brand b{color:var(--accent)}
+.steps span.on{background:var(--accent)!important}
+nav.tabs button[aria-current="page"]::before{background:var(--accent)!important}
+.dot{background:var(--accent)!important}
+.item[aria-pressed="true"] .n::after{background:var(--accent)!important}
+.rating svg.i{stroke:var(--accent)}
+.done .mark{border-color:var(--accent)!important;color:var(--accent)}
+.btn.ghost{background:transparent!important;color:var(--fg)!important}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:440px;height:100%;margin:0 auto;display:flex;flex-direction:column;background:var(--bg);position:relative}
+@media (min-width:480px){.app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:2;background:var(--bg);display:flex;align-items:center;gap:12px;
+  padding-block:14px 10px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.brand{font-family:var(--display);font-weight:400;font-size:20px;letter-spacing:.32em;text-transform:uppercase}
+.brand b{font-weight:500}
+header .back{display:flex;align-items:center;gap:6px;background:none;border:0;color:var(--fg);font:inherit;padding:6px 0;cursor:pointer}
+header .ttl{font-family:var(--display);font-size:18px;font-weight:400;letter-spacing:.04em}
+.spacer{flex:1}
+.iconbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:grid;place-items:center;cursor:pointer}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding-block:4px 28px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+h1{font-family:var(--display);font-weight:300;font-size:32px;line-height:1.1;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0}
+.sec{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.link{background:none;border:0;color:var(--muted);font:inherit;font-size:13px;cursor:pointer;padding:4px 0}
+.num{font-variant-numeric:tabular-nums}
+
+/* next booking */
+.next{background:var(--accent);color:var(--accent-fg);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.next .when{font-family:var(--display);font-size:26px;font-weight:300;line-height:1.1}
+.next .meta{opacity:.72;font-size:13px}
+.next .tag{align-self:flex-start;font-size:11px;letter-spacing:.12em;text-transform:uppercase;border:1px solid currentColor;border-radius:99px;padding:2px 10px;opacity:.7}
+.empty{border:1px dashed var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:12px;color:var(--muted)}
+
+/* categories */
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--fg);font:inherit;font-size:12px;cursor:pointer;min-width:0}
+.cat svg.i{width:26px;height:26px;stroke-width:1.3}
+.cat[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+
+/* chips */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-20px;padding-inline:20px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:99px;padding:8px 16px;font:inherit;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+
+/* lists */
+.list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.item{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--line);background:none;border-left:0;border-right:0;border-top:0;color:var(--fg);font:inherit;text-align:left;cursor:pointer;width:100%}
+.item .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.item .n{font-weight:500}
+.item .s{color:var(--muted);font-size:13px}
+.item .p{font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap}
+.item[aria-pressed="true"] .n::after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--fg);margin-left:8px;vertical-align:middle}
+
+/* masters */
+.masters{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;margin-inline:-20px;padding-inline:20px}
+.masters::-webkit-scrollbar{display:none}
+.m{flex:none;width:112px;display:flex;flex-direction:column;gap:8px;background:none;border:0;color:var(--fg);font:inherit;text-align:left;cursor:pointer;padding:0}
+.ava{width:100%;aspect-ratio:1;max-width:100%;border-radius:18px;background:var(--soft);display:grid;place-items:center;font-family:var(--display);font-size:30px;font-weight:300;color:var(--fg);border:1px solid var(--line)}
+.m .n{font-weight:500;font-size:14px;line-height:1.3}
+.m .s{color:var(--muted);font-size:12px;line-height:1.3}
+.m[aria-pressed="true"] .ava{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mgrid .m{width:auto}
+.rating{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}
+.rating svg.i{width:13px;height:13px}
+
+/* booking flow */
+.steps{display:flex;gap:6px}
+.steps span{flex:1;height:2px;border-radius:2px;background:var(--line)}
+.steps span.on{background:var(--fg)}
+.days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-20px;padding-inline:20px}
+.days::-webkit-scrollbar{display:none}
+.day{flex:none;width:56px;padding:10px 0;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.day .w{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.day .d{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.day[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.day[aria-pressed="true"] .w{color:inherit;opacity:.7}
+.day.off{opacity:.4}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slot{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:10px 0;font:inherit;font-variant-numeric:tabular-nums;cursor:pointer}
+.slot:disabled{opacity:.3;text-decoration:line-through;cursor:default}
+.slot[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.summary{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:6px 18px}
+.summary .r{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}
+.summary .r:last-child{border-bottom:0}
+.summary .k{color:var(--muted)}
+.summary .v{text-align:right;font-weight:500}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.field input{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:13px 14px;font:inherit}
+.cta{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 70%,transparent);padding-top:14px;margin-top:auto}
+.btn{width:100%;border:0;border-radius:99px;background:var(--accent);color:var(--accent-fg);font:inherit;font-weight:600;padding:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn:disabled{opacity:.3;cursor:default}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.hint{color:var(--muted);font-size:13px;margin:0}
+.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;padding-top:40px}
+.done .mark{width:72px;height:72px;border-radius:50%;border:1px solid var(--fg);display:grid;place-items:center}
+.done .mark svg.i{width:32px;height:32px}
+
+/* bookings */
+.bk{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.bk .when{font-family:var(--display);font-size:20px;font-weight:400}
+.bk .actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk .actions button{border:1px solid var(--line);background:none;color:var(--fg);border-radius:99px;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer}
+.bk .actions .danger{color:var(--warn)}
+.badge{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 8px}
+.bk.past{opacity:.6}
+
+/* profile */
+.prof{display:flex;align-items:center;gap:16px}
+.prof .ava{width:64px;border-radius:50%;font-size:24px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:2px}
+.stat .v{font-family:var(--display);font-size:24px;font-weight:300;font-variant-numeric:tabular-nums}
+.stat .k{font-size:12px;color:var(--muted)}
+.info{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.info .t{flex:1;min-width:0}
+.info .s{color:var(--muted);font-size:13px}
+.copy{border:1px solid var(--line);background:none;color:var(--fg);border-radius:99px;padding:6px 12px;font:inherit;font-size:12px;cursor:pointer}
+
+/* tab bar */
+nav.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--bg);
+  padding-block:8px 10px;padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+nav.tabs button{background:none;border:0;color:var(--muted);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer;position:relative}
+nav.tabs button[aria-current="page"]{color:var(--fg)}
+nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-9px;width:18px;height:2px;background:var(--fg);border-radius:2px}
+.dot{position:absolute;top:4px;left:calc(50% + 8px);width:6px;height:6px;border-radius:50%;background:var(--fg)}
+
+.toast{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);background:var(--accent);color:var(--accent-fg);padding:10px 18px;border-radius:99px;font-size:13px;white-space:nowrap;z-index:5}
+button:focus-visible,input:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){main>*{animation:in .28s ease both}@keyframes in{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="top" id="top"></header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs" aria-label="Разделы"></nav>
+  <div class="toast" id="toast" hidden></div>
+</div>
+
+<script>
+/* ---------- icons: simple line drawings from basic shapes ---------- */
+const I = {
+  home:'<path d="M4 10.5 12 4l8 6.5V20h-5v-6h-6v6H4z"/>',
+  scissors:'<circle cx="6" cy="7" r="2.5"/><circle cx="6" cy="17" r="2.5"/><path d="M8.2 8.3 20 18M8.2 15.7 20 6"/>',
+  calendar:'<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+  user:'<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/>',
+  hair:'<path d="M6 20V11a6 6 0 0 1 12 0v9"/><path d="M9 20v-7M12 20v-9M15 20v-7"/>',
+  nail:'<rect x="8" y="3.5" width="8" height="17" rx="4"/><path d="M8 9h8"/>',
+  brow:'<path d="M3.5 11c3-3 6.5-3.5 9-1.5"/><circle cx="8" cy="15" r="2"/><path d="M20.5 11c-1.8-1.6-3.8-2.3-6-2"/><circle cx="16.5" cy="15" r="2"/>',
+  face:'<circle cx="12" cy="12" r="8"/><path d="M9 10h.01M15 10h.01M9 15c1.7 1.3 4.3 1.3 6 0"/>',
+  back:'<path d="M14.5 6 8.5 12l6 6"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  check:'<path d="M5 12.5 10 17l9-10"/>',
+  star:'<path d="m12 4 2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z"/>',
+  pin:'<path d="M12 21s6-5.6 6-11a6 6 0 0 0-12 0c0 5.4 6 11 6 11z"/><circle cx="12" cy="10" r="2"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  phone:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+};
+const ic = (n,extra='') => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true" ${extra}>${I[n]}</svg>`;
+
+/* ---------- salon data ---------- */
+const CATS = [
+  {id:'hair', name:'Волосы', icon:'hair'},
+  {id:'nails', name:'Ногти', icon:'nail'},
+  {id:'brows', name:'Брови', icon:'brow'},
+  {id:'face', name:'Лицо', icon:'face'},
+];
+const SERVICES = [
+  {id:'s1', cat:'hair', name:'Женская стрижка', dur:60, price:2800},
+  {id:'s2', cat:'hair', name:'Мужская стрижка', dur:45, price:1900},
+  {id:'s3', cat:'hair', name:'Окрашивание в один тон', dur:120, price:5500},
+  {id:'s4', cat:'hair', name:'Укладка', dur:45, price:2000},
+  {id:'s5', cat:'nails', name:'Маникюр с покрытием', dur:90, price:2600},
+  {id:'s6', cat:'nails', name:'Педикюр с покрытием', dur:90, price:3200},
+  {id:'s7', cat:'nails', name:'Снятие покрытия', dur:20, price:500},
+  {id:'s8', cat:'brows', name:'Коррекция и окрашивание бровей', dur:45, price:1600},
+  {id:'s9', cat:'brows', name:'Ламинирование ресниц', dur:60, price:2400},
+  {id:'s10', cat:'face', name:'Чистка лица', dur:75, price:4200},
+  {id:'s11', cat:'face', name:'Уходовая процедура', dur:60, price:3500},
+];
+const MASTERS = [
+  {id:'m1', name:'Анна', role:'Стилист-колорист', cats:['hair'], rating:4.9, years:8},
+  {id:'m2', name:'Максим', role:'Стилист, барбер', cats:['hair'], rating:4.8, years:6},
+  {id:'m3', name:'Ирина', role:'Мастер ногтевого сервиса', cats:['nails'], rating:5.0, years:7},
+  {id:'m4', name:'Дарья', role:'Бровист, лэшмейкер', cats:['brows'], rating:4.9, years:4},
+  {id:'m5', name:'Ольга', role:'Косметолог', cats:['face'], rating:4.9, years:10},
+];
+const SALON = {address:'ул. Пятницкая, 18', hours:'Ежедневно 10:00–21:00', phone:'+7 495 000-00-00'};
+
+const svc = id => SERVICES.find(s=>s.id===id);
+const mst = id => MASTERS.find(m=>m.id===id);
+const cat = id => CATS.find(c=>c.id===id);
+const rub = n => n.toLocaleString('ru-RU')+' ₽';
+const WD = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const MON = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const dKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const parseKey = k => { const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d); };
+const human = k => { const d=parseKey(k), t=dKey(new Date()), tm=new Date(); tm.setDate(tm.getDate()+1);
+  if(k===t) return 'Сегодня'; if(k===dKey(tm)) return 'Завтра';
+  return `${d.getDate()} ${MON[d.getMonth()]}, ${WD[d.getDay()].toLowerCase()}`; };
+const durTxt = m => m>=60 ? `${Math.floor(m/60)} ч${m%60?' '+m%60+' мин':''}` : `${m} мин`;
+
+/* ---------- storage (this device only) ---------- */
+const KEY='maxstyle.v1';
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) }catch(e){ return null } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({bookings:S.bookings, name:S.name, phone:S.phone})) }catch(e){} }
+
+function seed(){
+  const d=new Date(); d.setDate(d.getDate()+2);
+  return [{id:'ex1', service:'s5', master:'m3', date:dKey(d), time:'14:30', example:true}];
+}
+const saved = load();
+const S = {
+  tab:'home', view:null, filter:'hair',
+  bookings: saved?.bookings ?? seed(),
+  name: saved?.name ?? '', phone: saved?.phone ?? '',
+  flow:null,
+};
+
+/* busy slots: deterministic per master and date */
+function busy(masterId, key, time){
+  let h=0; for(const c of masterId+key+time) h=(h*31+c.charCodeAt(0))>>>0;
+  if(h%10<3) return true;
+  return S.bookings.some(b=>b.master===masterId && b.date===key && b.time===time && !b.cancelled);
+}
+function slotsFor(key){
+  const out=[]; for(let h=10;h<20;h++) for(const m of [0,30]) out.push(`${String(h).padStart(2,'0')}:${m?'30':'00'}`);
+  if(key===dKey(new Date())){ const n=new Date(), cur=n.getHours()*60+n.getMinutes()+30;
+    return out.filter(t=>{const [a,b]=t.split(':').map(Number);return a*60+b>cur}); }
+  return out;
+}
+function isPast(b){ const [h,m]=b.time.split(':').map(Number); const d=parseKey(b.date); d.setHours(h,m); return d<new Date(); }
+const upcoming = () => S.bookings.filter(b=>!b.cancelled && !isPast(b)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+
+/* ---------- render ---------- */
+const $ = id => document.getElementById(id);
+function render(){
+  renderTabs();
+  if(S.flow) return renderFlow();
+  if(S.view?.type==='master') return renderMaster(S.view.id);
+  ({home:renderHome, services:renderServices, bookings:renderBookings, profile:renderProfile})[S.tab]();
+}
+function topBrand(right=''){ $('top').innerHTML = `<div class="brand"><b>Max</b>Style</div><div class="spacer"></div>${right}`; }
+function topBack(title, fn){
+  $('top').innerHTML = `<button class="back" id="back">${ic('back')}</button><div class="ttl">${title}</div>`;
+  $('back').onclick = fn;
+}
+function renderTabs(){
+  const tabs=[['home','Главная','home'],['services','Услуги','scissors'],['bookings','Записи','calendar'],['profile','Профиль','user']];
+  const n = upcoming().length;
+  $('tabs').innerHTML = tabs.map(([id,l,i])=>`<button data-tab="${id}" ${S.tab===id&&!S.flow&&!S.view?'aria-current="page"':''}>${ic(i)}${l}${id==='bookings'&&n?'<span class="dot"></span>':''}</button>`).join('');
+  $('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;S.flow=null;S.view=null;render();$('main').scrollTop=0});
+}
+function nextCard(){
+  const b = upcoming()[0];
+  if(!b) return `<div class="empty"><span>У вас пока нет записей.</span><button class="btn" data-book>${ic('plus')}Записаться</button></div>`;
+  const s=svc(b.service), m=mst(b.master);
+  return `<div class="next">
+    ${b.example?'<span class="tag">Пример записи</span>':''}
+    <div class="when">${human(b.date)}<br><span class="num">${b.time}</span></div>
+    <div><div style="font-weight:500">${s.name}</div><div class="meta">${m.name} · ${durTxt(s.dur)} · ${rub(s.price)}</div></div>
+  </div>`;
+}
+function catGrid(sel){
+  return `<div class="cats">${CATS.map(c=>`<button class="cat" data-cat="${c.id}" ${sel===c.id?'aria-pressed="true"':''}>${ic(c.icon)}${c.name}</button>`).join('')}</div>`;
+}
+function serviceList(list, picked){
+  return `<div class="list">${list.map(s=>`<button class="item" data-svc="${s.id}" ${picked===s.id?'aria-pressed="true"':''}>
+    <span class="t"><span class="n">${s.name}</span><span class="s">${durTxt(s.dur)}</span></span>
+    <span class="p">${rub(s.price)}</span></button>`).join('')}</div>`;
+}
+function masterCards(list, picked, cls='masters'){
+  return `<div class="${cls}">${list.map(m=>`<button class="m" data-master="${m.id}" ${picked===m.id?'aria-pressed="true"':''}>
+    <span class="ava">${m.name[0]}</span><span class="n">${m.name}</span><span class="s">${m.role}</span>
+    <span class="rating">${ic('star')}<span class="num">${m.rating.toFixed(1)}</span></span></button>`).join('')}</div>`;
+}
+function wire(root=$('main')){
+  root.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>startFlow({}));
+  root.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{S.filter=b.dataset.cat;S.tab='services';render()});
+  root.querySelectorAll('[data-svc]').forEach(b=>b.onclick=()=>startFlow({service:b.dataset.svc}));
+  root.querySelectorAll('[data-master]').forEach(b=>b.onclick=()=>{S.view={type:'master',id:b.dataset.master};render();$('main').scrollTop=0});
+}
+
+function renderHome(){
+  topBrand(`<button class="iconbtn" data-book aria-label="Записаться">${ic('plus')}</button>`);
+  const h=new Date().getHours();
+  const hi = h<12?'Доброе утро':h<18?'Добрый день':'Добрый вечер';
+  const popular=['s1','s5','s8','s10'].map(svc);
+  $('main').innerHTML = `
+    <section class="sec"><h1>${hi}${S.name?', '+S.name:''}.<br>Время для себя.</h1></section>
+    <section class="sec"><div class="row"><h2>Ближайшая запись</h2>${upcoming().length?'<button class="link" data-goto="bookings">Все</button>':''}</div>${nextCard()}</section>
+    <section class="sec"><h2>Направления</h2>${catGrid()}</section>
+    <section class="sec"><h2>Популярное</h2>${serviceList(popular)}</section>
+    <section class="sec"><div class="row"><h2>Мастера</h2><button class="link" data-goto="masters">Все</button></div>${masterCards(MASTERS)}</section>
+    <section class="sec"><div class="list">
+      <div class="info">${ic('pin')}<div class="t">${SALON.address}<div class="s">${SALON.hours}</div></div></div>
+    </div></section>`;
+  wire(); $('top').querySelector('[data-book]').onclick=()=>startFlow({});
+  $('main').querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{
+    if(b.dataset.goto==='bookings'){S.tab='bookings'} else {S.tab='services';S.filter='masters'} render(); });
+}
+
+function renderServices(){
+  topBrand();
+  const chips=[...CATS.map(c=>[c.id,c.name]),['masters','Мастера']];
+  const body = S.filter==='masters'
+    ? masterCards(MASTERS,null,'mgrid')
+    : serviceList(SERVICES.filter(s=>s.cat===S.filter));
+  $('main').innerHTML = `
+    <section class="sec"><h1>Услуги</h1>
+      <div class="chips">${chips.map(([id,l])=>`<button class="chip" data-f="${id}" ${S.filter===id?'aria-pressed="true"':''}>${l}</button>`).join('')}</div>
+    </section>
+    <section class="sec">${S.filter!=='masters'?'<p class="hint">Выберите услугу, чтобы записаться.</p>':''}${body}</section>`;
+  $('main').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{S.filter=b.dataset.f;render()});
+  wire();
+}
+
+function renderMaster(id){
+  const m=mst(id);
+  topBack('Мастер',()=>{S.view=null;render()});
+  $('main').innerHTML = `
+    <section class="prof"><span class="ava" style="width:88px;font-size:34px">${m.name[0]}</span>
+      <div><h1 style="font-size:28px">${m.name}</h1><div class="hint">${m.role}</div></div></section>
+    <section class="stats">
+      <div class="stat"><span class="v">${m.rating.toFixed(1)}</span><span class="k">рейтинг</span></div>
+      <div class="stat"><span class="v">${m.years}</span><span class="k">лет опыта</span></div>
+      <div class="stat"><span class="v">${SERVICES.filter(s=>m.cats.includes(s.cat)).length}</span><span class="k">услуг</span></div>
+    </section>
+    <section class="sec"><h2>Услуги мастера</h2>
+      <div class="list">${SERVICES.filter(s=>m.cats.includes(s.cat)).map(s=>`<button class="item" data-svcm="${s.id}">
+      <span class="t"><span class="n">${s.name}</span><span class="s">${durTxt(s.dur)}</span></span><span class="p">${rub(s.price)}</span></button>`).join('')}</div>
+    </section>`;
+  $('main').querySelectorAll('[data-svcm]').forEach(b=>b.onclick=()=>startFlow({service:b.dataset.svcm, master:id}));
+}
+
+/* ---------- booking flow ---------- */
+function startFlow(f){
+  const first=new Date();
+  S.flow = {service:f.service||null, master:f.master||null, date:dKey(first), time:null, step: f.service ? (f.master?2:1) : 0, from:{tab:S.tab, view:S.view}};
+  S.view=null; render(); $('main').scrollTop=0;
+}
+function flowBack(){
+  const f=S.flow;
+  if(f.step===0 || f.done){ S.view=f.from.view; S.flow=null; render(); return; }
+  f.step--; render();
+}
+function renderFlow(){
+  const f=S.flow;
+  if(f.done) return renderDone();
+  const titles=['Услуга','Мастер','Дата и время','Подтверждение'];
+  topBack(titles[f.step], flowBack);
+  const steps=`<div class="steps">${[0,1,2,3].map(i=>`<span class="${i<=f.step?'on':''}"></span>`).join('')}</div>`;
+  let body='', ready=false, label='Далее';
+
+  if(f.step===0){
+    const c = f.cat || (f.service?svc(f.service).cat:'hair'); f.cat=c;
+    body = `<section class="sec"><h1>Что делаем?</h1>${catGrid(c)}</section>
+      <section class="sec">${serviceList(SERVICES.filter(s=>s.cat===c), f.service)}</section>`;
+    ready=!!f.service;
+  }
+  if(f.step===1){
+    const s=svc(f.service); const list=MASTERS.filter(m=>m.cats.includes(s.cat));
+    body = `<section class="sec"><h1>К кому?</h1><p class="hint">${s.name} · ${durTxt(s.dur)}</p></section>
+      <section class="sec">${masterCards(list,f.master,'mgrid')}</section>`;
+    ready=!!f.master;
+  }
+  if(f.step===2){
+    const days=[]; for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()+i);days.push(d)}
+    const sl=slotsFor(f.date);
+    body = `<section class="sec"><h1>Когда удобно?</h1><p class="hint">${mst(f.master).name} · ${svc(f.service).name}</p></section>
+      <section class="sec"><h2>${['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][parseKey(f.date).getMonth()]}</h2>
+        <div class="days">${days.map(d=>{const k=dKey(d), none=!slotsFor(k).length;return `<button class="day ${none?'off':''}" data-day="${k}" ${f.date===k?'aria-pressed="true"':''} ${none?'disabled':''}><span class="w">${WD[d.getDay()]}</span><span class="d">${d.getDate()}</span></button>`}).join('')}</div></section>
+      <section class="sec"><h2>Время</h2>${sl.length?`<div class="slots">${sl.map(t=>{const b=busy(f.master,f.date,t);return `<button class="slot" data-time="${t}" ${b?'disabled':''} ${f.time===t?'aria-pressed="true"':''}>${t}</button>`}).join('')}</div>`:'<p class="hint">На сегодня свободного времени не осталось. Выберите другой день.</p>'}</section>`;
+    ready=!!f.time;
+  }
+  if(f.step===3){
+    const s=svc(f.service), m=mst(f.master);
+    body = `<section class="sec"><h1>Проверьте запись</h1></section>
+      <section class="summary">
+        <div class="r"><span class="k">Услуга</span><span class="v">${s.name}</span></div>
+        <div class="r"><span class="k">Мастер</span><span class="v">${m.name}</span></div>
+        <div class="r"><span class="k">Когда</span><span class="v num">${human(f.date)}, ${f.time}</span></div>
+        <div class="r"><span class="k">Длительность</span><span class="v">${durTxt(s.dur)}</span></div>
+        <div class="r"><span class="k">Стоимость</span><span class="v num">${rub(s.price)}</span></div>
+      </section>
+      <section class="sec">
+        <div class="field"><label for="f-name">Имя</label><input id="f-name" autocomplete="given-name" placeholder="Как к вам обращаться" value="${S.name}"></div>
+        <div class="field"><label for="f-phone">Телефон</label><input id="f-phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00" value="${S.phone}"></div>
+        <p class="hint">Оплата в салоне. Отменить запись можно в разделе «Записи».</p>
+      </section>`;
+    label='Записаться'; ready = S.name.trim().length>1 && S.phone.replace(/\D/g,'').length>=10;
+  }
+  $('main').innerHTML = steps + body + `<div class="cta"><button class="btn" id="next" ${ready?'':'disabled'}>${label}${ic('arrow')}</button></div>`;
+
+  const M=$('main');
+  M.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{f.cat=b.dataset.cat; f.service=null; render()});
+  M.querySelectorAll('[data-svc]').forEach(b=>b.onclick=()=>{ if(f.service!==b.dataset.svc){f.master=null;f.time=null} f.service=b.dataset.svc; render()});
+  M.querySelectorAll('[data-master]').forEach(b=>b.onclick=()=>{f.master=b.dataset.master; f.time=null; render()});
+  M.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{f.date=b.dataset.day; f.time=null; const y=M.querySelector('.days').scrollLeft; render(); M.querySelector('.days').scrollLeft=y});
+  M.querySelectorAll('[data-time]').forEach(b=>b.onclick=()=>{f.time=b.dataset.time; const y=M.scrollTop,x=M.querySelector('.days').scrollLeft; render(); M.scrollTop=y; M.querySelector('.days').scrollLeft=x});
+  if(f.step===3){
+    const upd=()=>{S.name=$('f-name').value;S.phone=$('f-phone').value;$('next').disabled=!(S.name.trim().length>1&&S.phone.replace(/\D/g,'').length>=10)};
+    $('f-name').oninput=upd; $('f-phone').oninput=upd;
+  }
+  $('next').onclick=()=>{
+    if(f.step<3){ f.step++; render(); M.scrollTop=0; return; }
+    S.name=S.name.trim();
+    const b={id:'b'+Date.now(), service:f.service, master:f.master, date:f.date, time:f.time};
+    if(f.editing){ S.bookings=S.bookings.filter(x=>x.id!==f.editing) }
+    S.bookings.push(b); save(); f.done=b; render();
+  };
+}
+function renderDone(){
+  const b=S.flow.done, s=svc(b.service), m=mst(b.master);
+  $('top').innerHTML = `<div class="brand"><b>Max</b>Style</div>`;
+  $('main').innerHTML = `<section class="done">
+      <span class="mark">${ic('check')}</span>
+      <h1>Вы записаны</h1>
+      <p class="hint">${s.name} у мастера ${m.name}<br><span class="num">${human(b.date)}, ${b.time}</span></p>
+      <p class="hint">${SALON.address}</p>
+    </section>
+    <div class="cta" style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn" id="tomine">Мои записи</button>
+      <button class="btn ghost" id="tohome">На главную</button></div>`;
+  $('tomine').onclick=()=>{S.flow=null;S.tab='bookings';render()};
+  $('tohome').onclick=()=>{S.flow=null;S.tab='home';render()};
+}
+
+/* ---------- bookings ---------- */
+function renderBookings(){
+  topBrand(`<button class="iconbtn" data-book aria-label="Записаться">${ic('plus')}</button>`);
+  const up=upcoming();
+  const past=S.bookings.filter(b=>!b.cancelled && isPast(b)).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  const card=(b,p)=>{const s=svc(b.service),m=mst(b.master);return `<article class="bk ${p?'past':''}">
+    <div class="row"><span class="when num">${human(b.date)}, ${b.time}</span>${b.example?'<span class="badge">пример</span>':''}</div>
+    <div><div style="font-weight:500">${s.name}</div><div class="hint">${m.name} · ${durTxt(s.dur)} · ${rub(s.price)}</div></div>
+    ${p?'':`<div class="actions" data-id="${b.id}">
+      <button data-act="move">Перенести</button><button class="danger" data-act="cancel">Отменить</button></div>`}
+  </article>`};
+  $('main').innerHTML = `<section class="sec"><h1>Мои записи</h1></section>
+    <section class="sec"><h2>Предстоящие</h2>${up.length?up.map(b=>card(b)).join(''):`<div class="empty"><span>Предстоящих записей нет.</span><button class="btn" data-book>${ic('plus')}Записаться</button></div>`}</section>
+    ${past.length?`<section class="sec"><h2>Прошедшие</h2>${past.map(b=>card(b,true)).join('')}</section>`:''}`;
+  wire(); $('top').querySelector('[data-book]').onclick=()=>startFlow({});
+  $('main').querySelectorAll('.actions').forEach(a=>{
+    const id=a.dataset.id, b=S.bookings.find(x=>x.id===id);
+    a.querySelector('[data-act="cancel"]').onclick=e=>{
+      if(a.dataset.confirm){ b.cancelled=true; save(); toast('Запись отменена'); render(); return; }
+      a.dataset.confirm='1'; e.currentTarget.textContent='Точно отменить?';
+    };
+    a.querySelector('[data-act="move"]').onclick=()=>{
+      startFlow({service:b.service, master:b.master}); S.flow.editing=id; S.flow.date=b.date; render();
+    };
+  });
+}
+
+/* ---------- profile ---------- */
+function renderProfile(){
+  topBrand();
+  const visits=S.bookings.filter(b=>!b.cancelled && isPast(b)).length;
+  const spent=S.bookings.filter(b=>!b.cancelled && isPast(b)).reduce((a,b)=>a+svc(b.service).price,0);
+  $('main').innerHTML = `
+    <section class="prof"><span class="ava">${S.name?S.name[0].toUpperCase():ic('user')}</span>
+      <div><h1 style="font-size:26px">${S.name||'Гость'}</h1><div class="hint num">${S.phone||'Телефон появится после первой записи'}</div></div></section>
+    <section class="stats">
+      <div class="stat"><span class="v">${upcoming().length}</span><span class="k">впереди</span></div>
+      <div class="stat"><span class="v">${visits}</span><span class="k">визитов</span></div>
+      <div class="stat"><span class="v">${visits?Math.round(spent/1000)+'к':'—'}</span><span class="k">потрачено, ₽</span></div>
+    </section>
+    <section class="sec"><h2>Салон</h2><div>
+      <div class="info">${ic('pin')}<div class="t">${SALON.address}<div class="s">Москва</div></div></div>
+      <div class="info">${ic('clock')}<div class="t">${SALON.hours}<div class="s">Без перерывов и выходных</div></div></div>
+      <div class="info">${ic('phone')}<div class="t num" id="ph">${SALON.phone}<div class="s">Администратор</div></div><button class="copy" id="cp">Скопировать</button></div>
+    </div></section>
+    <section class="sec"><button class="btn ghost" id="reset">Сбросить данные на этом устройстве</button>
+      <p class="hint">Записи и контакты хранятся только в этом браузере.</p></section>`;
+  $('cp').onclick=()=>{ navigator.clipboard?.writeText(SALON.phone).then(()=>toast('Номер скопирован'),()=>sel()) ?? sel();
+    function sel(){const r=document.createRange();r.selectNodeContents($('ph').firstChild.parentNode);const s=getSelection();s.removeAllRanges();s.addRange(r)} };
+  $('reset').onclick=e=>{
+    if(!e.currentTarget.dataset.c){e.currentTarget.dataset.c=1;e.currentTarget.textContent='Нажмите ещё раз для сброса';return}
+    try{localStorage.removeItem(KEY)}catch(_){}
+    S.bookings=seed(); S.name=''; S.phone=''; toast('Данные сброшены'); render();
+  };
+}
+
+let tt; function toast(t){ const el=$('toast'); el.textContent=t; el.hidden=false; clearTimeout(tt); tt=setTimeout(()=>el.hidden=true,2000); }
+render();
+</script>
+
+</body>
+</html>
