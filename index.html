@@ -99,10 +99,14 @@ h2{font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.18e
 .pager button:disabled{opacity:.3;cursor:default}
 .pager .flip{transform:scaleX(-1)}
 .m{flex:none;width:112px;display:flex;flex-direction:column;gap:8px;background:none;border:0;color:var(--fg);font:inherit;text-align:left;cursor:pointer;padding:0}
-.ava{width:100%;aspect-ratio:1;max-width:100%;border-radius:18px;background:var(--soft);display:grid;place-items:center;font-family:var(--display);font-size:30px;font-weight:300;color:var(--fg);border:1px solid var(--line)}
+.ava{width:100%;aspect-ratio:1;max-width:100%;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-family:var(--display);font-size:30px;font-weight:300;color:var(--fg);border:1px solid var(--line)}
 .m .n{font-weight:500;font-size:14px;line-height:1.3}
 .m .s{color:var(--muted);font-size:12px;line-height:1.3}
 .m[aria-pressed="true"] .ava{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.m{align-items:center;text-align:center}
+.m .rating{justify-content:center}
+.masters .m{width:112px}
+.mgrid .ava{width:78%;margin-inline:auto}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .mgrid .m{width:auto}
 .rating{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}
